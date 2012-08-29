@@ -1,0 +1,34 @@
+{
+    "name": "sourcemint-credentials-js",
+    "version": "0.1.0",
+    "license": "MIT",
+    "author": "Christoph Dorn <christoph@christophdorn.com> (http://christophdorn.com)",
+    "maintainers": [
+        {
+            "name": "Christoph Dorn",
+            "email": "christoph@christophdorn.com",
+            "web": "http://christophdorn.com"
+        }
+    ],
+    "contributors": [
+        {
+            "name": "Christoph Dorn",
+            "email": "christoph@christophdorn.com",
+            "web": "http://christophdorn.com"
+        }
+    ],
+    "bugs": {
+        "email": "sourcemint@googlegroups.com",
+        "url": "https://github.com/sourcemint/credentials-js/issues"
+    },
+    "homepage": "https://github.com/sourcemint/credentials-js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sourcemint/credentials-js.git"
+    },
+    "pm": "npm",
+    "dependencies": {
+        "sourcemint-util-js": "0.1.x",
+        "prompt": "0.2.3"
+    }
+}
