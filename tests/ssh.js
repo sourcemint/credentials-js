@@ -58,8 +58,12 @@ exports.main = function(callback) {
 					ASSERT(/^ssh-/.test(publicKey));
 					ASSERT(publicKey.length > 200);
 
-					done();
+					return Q.when(privateKey.getPassphrase(), function(passphrase) {
 
+						ASSERT(passphrase.length === 64);
+
+						done();
+					});
 				}).fail(done);
 			});
 		});
