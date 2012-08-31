@@ -1,7 +1,7 @@
 Sourcemint Credentials Manager
 ==============================
 
-*Status: ALPHA*
+*Status: ALPHA* [![Build Status](https://secure.travis-ci.org/sourcemint/credentials-js.png)](http://travis-ci.org/sourcemint/credentials-js)
 
   * Copyright: 2012 [Christoph Dorn](http://www.christophdorn.com/)
   * Code License: [MIT License](http://www.opensource.org/licenses/mit-license.php)
@@ -14,3 +14,5 @@ Links
 =====
 
   * https://developer.apple.com/library/mac/#documentation/Darwin/Reference/ManPages/man1/security.1.html
+  * http://linux.about.com/library/cmd/blcmdl1_ssh-keygen.htm
+  * http://linux.die.net/man/1/ssh-add

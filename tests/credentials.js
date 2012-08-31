@@ -16,7 +16,7 @@ const ADAPTER_OSX_SECURITY = require("../lib/adapter/osx-security");
 const TMP_PATH = PATH.join(__dirname, ".tmp");
 
 
-function main(callback) {
+exports.main = function(callback) {
 
 	setup(function(err) {
 		if (err) return callback(err);
@@ -36,71 +36,82 @@ function main(callback) {
 
 		var password = "securityPassword2012";
 
-		[
-			["file-json", function() { return new ADAPTER_FILE_JSON.Adapter(PATH.join(TMP_PATH, "credentials.json")); }, false],
-			["osx-security", function() { return new ADAPTER_OSX_SECURITY.Adapter(PATH.join(TMP_PATH, "credentials.keychain"), { password: password }); }, false],
-			["file-json", function() { return new ADAPTER_FILE_JSON.Adapter(PATH.join(TMP_PATH, "credentials.json")); }, true],
-			["osx-security", function() { return new ADAPTER_OSX_SECURITY.Adapter(PATH.join(TMP_PATH, "credentials.keychain"), { password: password }); }, true]
-		].forEach(function(adapter) {
+		var adapters = [
+			["file-json", function() { return new ADAPTER_FILE_JSON.Adapter(PATH.join(TMP_PATH, "credentials-manual.json")); }, false],
+			["file-json", function() { return new ADAPTER_FILE_JSON.Adapter(PATH.join(TMP_PATH, "credentials-manual.json")); }, true],
+			["best", function() { return { dirname: TMP_PATH, filename: "credentials-best", password: password }; }, false],
+			["custom1", function() { return { dirname: TMP_PATH, filename: "credentials-custom1", password: password, adapter: "file-json" }; }, false],
+			["default", function() { return { dirname: TMP_PATH, password: password }; }, false]
+		];
+		if (process.platform === "darwin") {
+			adapters.push(["osx-security", function() { return new ADAPTER_OSX_SECURITY.Adapter(PATH.join(TMP_PATH, "credentials-manual.keychain"), { password: password }); }, false]);
+			adapters.push(["osx-security", function() { return new ADAPTER_OSX_SECURITY.Adapter(PATH.join(TMP_PATH, "credentials-manual.keychain"), { password: password }); }, true]);
+			adapters.push(["custom2", function() { return { dirname: TMP_PATH, filename: "credentials-custom2", password: password, adapter: "osx-security" }; }, false]);
+		}
+
+		adapters.forEach(function(info) {
 			waitFor(function(done) {
 
-				console.log("Test adapter: " + adapter[0]);
+				console.log("Test adapter: " + info[0]);
 
-				var credentials = new CREDENTIALS.Credentials("default", adapter[1]());
+				Q.when(info[1](), function(adapter) {
 
-				if (adapter[2]) {
-					// Credentials store exists.
-					t2();
-				} else {
-					// Credentials store does not exist.
-					t1();
-				}
+					var credentials = new CREDENTIALS.Credentials("default", adapter);
 
-				// Prompt for value.
-				function t1() {
-					Q.when(credentials.requestFor("namespace1", "key1", {
-						stdin: PROMPT_TEST_HELPERS.stdin,
-						writeNextTick: "value1\n"
-					}), function(value) {
-						ASSERT.equal(value, "value1");
-						process.stdout.write("\n");
+					if (info[2]) {
+						// Credentials store exists.
 						t2();
-					}).fail(done);
-				}
+					} else {
+						// Credentials store does not exist.
+						t1();
+					}
 
-				// Value already set.
-				function t2() {
-					Q.when(credentials.requestFor("namespace1", "key1"), function(value) {
-						ASSERT.equal(value, "value1");
-						t3();
-					}).fail(done);
-				}
+					// Prompt for value.
+					function t1() {
+						Q.when(credentials.requestFor("namespace1", "key1", {
+							stdin: PROMPT_TEST_HELPERS.stdin,
+							writeNextTick: "value1\n"
+						}), function(value) {
+							ASSERT.equal(value, "value1");
+							process.stdout.write("\n");
+							t2();
+						}).fail(done);
+					}
 
-				var bigValue = "";
-				for (var i=0 ; i<3000 ; i++) {
-					bigValue += "x";
-					if (i%70 === 0) bigValue += "\n";
-				}
+					// Value already set.
+					function t2() {
+						Q.when(credentials.requestFor("namespace1", "key1"), function(value) {
+							ASSERT.equal(value, "value1");
+							t3();
+						}).fail(done);
+					}
 
-				// Prompt for big value.
-				function t3() {
-					Q.when(credentials.requestFor("namespace2", "key1", {
-						stdin: PROMPT_TEST_HELPERS.stdin,
-						writeNextTick: bigValue.replace(/\n/g, "\\n") + "\n"
-					}), function(value) {
-						ASSERT.equal(value, bigValue);
-						process.stdout.write("\n");
-						t4();
-					}).fail(done);
-				}
+					var bigValue = "";
+					for (var i=0 ; i<3000 ; i++) {
+						bigValue += "x";
+						if (i%70 === 0) bigValue += "\n";
+					}
 
-				// Big value already set.
-				function t4() {
-					Q.when(credentials.requestFor("namespace2", "key1"), function(value) {
-						ASSERT.equal(value, bigValue);
-						done();
-					}).fail(done);
-				}				
+					// Prompt for big value.
+					function t3() {
+						Q.when(credentials.requestFor("namespace2", "key1", {
+							stdin: PROMPT_TEST_HELPERS.stdin,
+							writeNextTick: bigValue.replace(/\n/g, "\\n") + "\n"
+						}), function(value) {
+							ASSERT.equal(value, bigValue);
+							process.stdout.write("\n");
+							t4();
+						}).fail(done);
+					}
+
+					// Big value already set.
+					function t4() {
+						Q.when(credentials.requestFor("namespace2", "key1"), function(value) {
+							ASSERT.equal(value, bigValue);
+							done();
+						}).fail(done);
+					}
+				}).fail(done);
 			});
 		});
 	}
@@ -119,7 +130,7 @@ function teardown(callback) {
 }
 
 if (require.main === module) {
-	main(function(err) {
+	exports.main(function(err) {
 		if (err) return ERROR.exitProcessWithError(err);
 		console.log("OK");
 		process.exit(0);
