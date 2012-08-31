@@ -18,6 +18,8 @@ const TMP_PATH = PATH.join(__dirname, ".tmp");
 
 exports.main = function(callback) {
 
+	console.log("Test credentials");
+
 	setup(function(err) {
 		if (err) return callback(err);
 		test(function(err) {
