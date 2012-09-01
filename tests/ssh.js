@@ -62,7 +62,13 @@ exports.main = function(callback) {
 
 						ASSERT(passphrase.length === 64);
 
-						done();
+						return Q.when(privateKey.getFingerprint(), function(fingerprint) {
+
+							ASSERT(fingerprint.length === 47);
+							ASSERT(fingerprint.split(":").length === 16);
+
+							done();
+						});
 					});
 				}).fail(done);
 			});
