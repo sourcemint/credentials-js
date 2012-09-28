@@ -110,9 +110,24 @@ exports.main = function(callback) {
 					function t4() {
 						Q.when(credentials.requestFor("namespace2", "key1"), function(value) {
 							ASSERT.equal(value, bigValue);
-							done();
+							t5();
 						}).fail(done);
 					}
+
+					function t5() {
+						Q.when(credentials.set("namespace3", "key1", "value1"), function() {
+							return Q.when(credentials.get("namespace3", "key1"), function(value) {
+								ASSERT.equal(value, "value1");
+								return Q.when(credentials.remove("namespace3", "key1"), function() {
+									return Q.when(credentials.get("namespace3", "key1"), function(value) {
+										ASSERT.equal(value, null);
+										done();
+									});
+								});
+							});
+						}).fail(done);
+					}
+
 				}).fail(done);
 			});
 		});

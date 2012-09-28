@@ -51,7 +51,7 @@ exports.main = function(callback) {
 
 				var credentials = new CREDENTIALS.Credentials("default", info[1]);
 
-				var privateKey = new SSH.PrivateKey(credentials, "test-key", PATH.join(TMP_PATH, info[2]));
+				var privateKey = new SSH.PrivateKey(credentials, PATH.join(TMP_PATH, info[2]));
 
 				Q.when(privateKey.getPublicKey(), function(publicKey) {
 
