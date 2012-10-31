@@ -29,7 +29,7 @@
     "pm": "npm",
     "dependencies": {
         "sourcemint-util-js": "0.1.x",
-        "prompt": "0.2.7"
+        "prompt": "0.2.x"
     },
     "scripts": {
         "test": "node tests/all.js"
